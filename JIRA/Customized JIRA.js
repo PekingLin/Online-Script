@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        　Customized JIRA 
+// @name        　Customized JIRA
 // @namespace    http://tampermonkey.net/
 // @version      1.1
 // @description  Toggle the visibility of the JIRA sidebar on and off with a button
@@ -14,6 +14,8 @@
 
 // 获取当前网页的URL
 var currentUrl = window.location.href;
+
+
 
 
 //Hide sidebar button
@@ -109,14 +111,72 @@ const observerCallback = function(mutationsList, observer) {
   for(const mutation of mutationsList) {
     if (mutation.type === 'childList') {
       // DOM 变化为子节点变化
+
       // 判断新添加的节点是否为侧边栏
       const sidebar = document.getElementById('viewissuesidebar');
       if (sidebar) {
         const storedState = GM_getValue('sidebarState');
         sidebar.style.display = storedState;
       }
+     // 判断新添加的节点是否是编辑弹窗
+      const edit_issue_dialog = document.getElementById('edit-issue-dialog');
+      if (edit_issue_dialog) {
+        edit_issue_dialog.style.width = '80%';
+        edit_issue_dialog.style.height = '90%';
+        edit_issue_dialog.style.top = '40px';
+        for (const node of mutation.addedNodes) {
+          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
+            node.style.maxHeight = 'none';
+          }
+        }
+      }
+
+     // 判断新添加的节点是否是新建弹窗
+      const create_issue_dialog = document.getElementById('create-issue-dialog');
+      if (create_issue_dialog) {
+        create_issue_dialog.style.width = '80%';
+        create_issue_dialog.style.height = '90%';
+        create_issue_dialog.style.top = '40px';
+        for (const node of mutation.addedNodes) {
+          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
+            node.style.maxHeight = 'none';
+          }
+        }
+      }
+
+
+     //判断新添加的节点是否是底部添加评论按钮
+      const filter_wrapper = document.getElementById('filter-wrapper');
+      if (filter_wrapper) {
+          filter_wrapper.style.display='none'
+      }
+
+
+    //判断新添加的节点是否是编辑评论弹窗
+      const edit_comment = document.getElementById('edit-comment');
+      if (edit_comment) {
+          edit_comment.style.width='80%';
+          edit_comment.style.left='10%';
+          edit_comment.style.top='3%';
+          edit_comment.style.removeProperty('margin-left');
+          edit_comment.style.removeProperty('margin-top');
+          edit_comment.style.height='94%';
+      }
+        const formBody = document.querySelector('#edit-comment .form-body, #comment-edit .form-body');
+                if (formBody) {
+                    formBody.style.height = '720px';
+                }
+       const editor = document.querySelector('.tox-tinymce.jira-editor-container');
+      if (editor) {
+        editor.style.height = '500px';
+        observer.disconnect();
+      }
+
     }
   }
+
+
+
 };
 
 // 创建一个观察器实例并传入回调函数
@@ -135,53 +195,20 @@ observer.observe(targetNode1, config);
      .issue-body-content {
     position: absolute;
     top: 180px;
-  }
+  },
+     .aui-dialog2-large {
+    width: 80%;
+}
+
 `);
     var stalker =document.getElementById('stalker');
     stalker.style.position='fixed';
     stalker.style.left='56px';
-
-
-//过滤机器人评论
-    function filterComments() {
-        const comments = document.querySelectorAll('.issue-data-block > .activity-comment:not([data-comment-is-jira-bot="false"])');
-        comments.forEach(comment => comment.style.display = 'none');
-    }
-
-    // 过滤现有评论
-    filterComments();
-
-// 在 jira 的问题详情页，监听评论区内容变化，去掉机器人发的评论
-const targetNode = document.querySelector('#issue-comment-add-form');
-if (targetNode) {
-  const observer = new MutationObserver((mutationsList) => {
-    for (let mutation of mutationsList) {
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        const addedNode = mutation.addedNodes[0];
-        if (addedNode.className && addedNode.className.includes('comment-body')) {
-          const text = addedNode.textContent.toLowerCase();
-          if (text.includes('added by automation') || text.includes('added by system')) {
-            addedNode.parentNode.removeChild(addedNode);
-          }
-        }
-      }
-    }
-  });
-
-  observer.observe(targetNode, { childList: true, subtree: true });
-}
-
-
-
-
+    stalker.style.right='16px';
 
 
 
 }
-
-
-
-
 
 
 else if (window.location.href.indexOf('https://jira.shanqu.cc/secure/CreateIssue.jspa') !== -1) {
@@ -190,7 +217,8 @@ else if (window.location.href.indexOf('https://jira.shanqu.cc/secure/CreateIssue
     width:80%
   }
 `);
-    var description =document.getElementById('description');
+    //var description =document.getElementById('description');
     //description.style.height = '700px';
 
 }
+
