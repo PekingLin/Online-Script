@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        　Customized JIRA
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Toggle the visibility of the JIRA sidebar on and off with a button
 // @author       ChatGPT
 // @match        https://jira.shanqu.cc/*
