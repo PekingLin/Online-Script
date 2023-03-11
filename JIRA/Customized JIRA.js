@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        　Customized JIRA
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.2.1
 // @description  Toggle the visibility of the JIRA sidebar on and off with a button
 // @author       ChatGPT
 // @match        https://jira.shanqu.cc/*
@@ -14,9 +14,52 @@
 
 // 获取当前网页的URL
 var currentUrl = window.location.href;
+let observer = null;
+const edit_issue_button = document.querySelector('#edit-issue');
+const create_issue_button=document.querySelector('#create_link');
+//const edit_comment_button=document.querySelector('edit-comment');
+
+//监听点击创建按钮
+create_issue_button.addEventListener('click', function() {
+// 监听 DOM 变化的回调函数
+
+const observerCallback = function(mutationsList, observer) {
+  // 遍历每一个变化
+  for(const mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      // DOM 变化为子节点变化
 
 
+     // 判断新添加的节点是否是新建弹窗
+      const create_issue_dialog = document.getElementById('create-issue-dialog');
+      if (create_issue_dialog) {
+        create_issue_dialog.style.width = '80%';
+        create_issue_dialog.style.height = '90%';
+        create_issue_dialog.style.top = '40px';
+        for (const node of mutation.addedNodes) {
+          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
+            node.style.maxHeight = 'none';
+          }
+        }
+      }
+    }
+  }
 
+
+};
+
+    // 创建一个观察器实例并传入回调函数
+const observer = new MutationObserver(observerCallback);
+
+// 配置观察选项
+const config = { attributes: true, childList: true, subtree: true };
+//const config = { childList: true };
+
+// 传入目标节点和观察选项
+const targetNode1 = document.body;
+observer.observe(targetNode1, config);
+
+})
 
 //Hide sidebar button
 if (/https:\/\/jira\.shanqu\.cc\/browse\/*/.test(currentUrl)||/https:\/\/jira\.shanqu\.cc\/projects\/ZHIQU\/issues\/*/
@@ -105,43 +148,18 @@ const styleElement = document.createElement('style');
 styleElement.innerHTML = customCSS;
 document.head.appendChild(styleElement);
 
-// 监听 DOM 变化的回调函数
+
 const observerCallback = function(mutationsList, observer) {
   // 遍历每一个变化
   for(const mutation of mutationsList) {
     if (mutation.type === 'childList') {
       // DOM 变化为子节点变化
-
+setTimeout(() => console.log("你好!"), 50)
       // 判断新添加的节点是否为侧边栏
       const sidebar = document.getElementById('viewissuesidebar');
       if (sidebar) {
         const storedState = GM_getValue('sidebarState');
         sidebar.style.display = storedState;
-      }
-     // 判断新添加的节点是否是编辑弹窗
-      const edit_issue_dialog = document.getElementById('edit-issue-dialog');
-      if (edit_issue_dialog) {
-        edit_issue_dialog.style.width = '80%';
-        edit_issue_dialog.style.height = '90%';
-        edit_issue_dialog.style.top = '40px';
-        for (const node of mutation.addedNodes) {
-          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
-            node.style.maxHeight = 'none';
-          }
-        }
-      }
-
-     // 判断新添加的节点是否是新建弹窗
-      const create_issue_dialog = document.getElementById('create-issue-dialog');
-      if (create_issue_dialog) {
-        create_issue_dialog.style.width = '80%';
-        create_issue_dialog.style.height = '90%';
-        create_issue_dialog.style.top = '40px';
-        for (const node of mutation.addedNodes) {
-          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
-            node.style.maxHeight = 'none';
-          }
-        }
       }
 
 
@@ -151,8 +169,16 @@ const observerCallback = function(mutationsList, observer) {
           filter_wrapper.style.display='none'
       }
 
+           //判断添加的节点是否展开附件
+       const attachmentModule = document.getElementById('attachmentmodule');
+      if (attachmentModule) {
+                  attachmentModule.classList.add('collapsed');
+        attachmentModule.classList.remove('expanded');
 
-    //判断新添加的节点是否是编辑评论弹窗
+      }
+
+
+           //判断新添加的节点是否是编辑评论弹窗
       const edit_comment = document.getElementById('edit-comment');
       if (edit_comment) {
           edit_comment.style.width='80%';
@@ -169,25 +195,71 @@ const observerCallback = function(mutationsList, observer) {
        const editor = document.querySelector('.tox-tinymce.jira-editor-container');
       if (editor) {
         editor.style.height = '500px';
-        observer.disconnect();
       }
 
     }
   }
-
-
-
 };
 
-// 创建一个观察器实例并传入回调函数
+    // 创建一个观察器实例并传入回调函数
 const observer = new MutationObserver(observerCallback);
 
 // 配置观察选项
 const config = { attributes: true, childList: true, subtree: true };
+//const config = { childList: true };
 
 // 传入目标节点和观察选项
 const targetNode1 = document.body;
 observer.observe(targetNode1, config);
+
+
+
+
+
+//监听点击编辑按钮
+edit_issue_button.addEventListener('click', function() {
+// 监听 DOM 变化的回调函数
+
+const observerCallback = function(mutationsList, observer) {
+  // 遍历每一个变化
+  for(const mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      // DOM 变化为子节点变化
+
+     // 判断新添加的节点是否是编辑弹窗
+      const edit_issue_dialog = document.getElementById('edit-issue-dialog');
+      if (edit_issue_dialog) {
+        edit_issue_dialog.style.width = '80%';
+        edit_issue_dialog.style.height = '90%';
+        edit_issue_dialog.style.top = '40px';
+        for (const node of mutation.addedNodes) {
+          if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
+            node.style.maxHeight = 'none';
+          }
+        }
+      }
+    }
+  }
+
+
+};
+
+    // 创建一个观察器实例并传入回调函数
+const observer = new MutationObserver(observerCallback);
+
+// 配置观察选项
+const config = { attributes: true, childList: true, subtree: true };
+//const config = { childList: true };
+
+// 传入目标节点和观察选项
+const targetNode1 = document.body;
+observer.observe(targetNode1, config);
+
+})
+
+
+
+
 
 
 //固定title栏
@@ -221,4 +293,3 @@ else if (window.location.href.indexOf('https://jira.shanqu.cc/secure/CreateIssue
     //description.style.height = '700px';
 
 }
-
