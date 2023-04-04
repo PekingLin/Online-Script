@@ -42,6 +42,22 @@ const observerCallback = function(mutationsList, observer) {
           }
         }
       }
+
+      
+     // 判断新添加的节点是否是新建子任务弹窗
+     const create_subtask_dialog = document.getElementById('create-subtask-dialog');
+     if (create_subtask_dialog) {
+      create_subtask_dialog.style.width = '80%';
+      create_subtask_dialog.style.height = '90%';
+      create_subtask_dialog.style.top = '40px';
+       for (const node of mutation.addedNodes) {
+         if (node.classList && node.classList.contains('aui-dialog2-content') && node.classList.contains('jira-dialog-core-content')) {
+           node.style.maxHeight = 'none';
+         }
+       }
+     }
+
+
     }
   }
 
